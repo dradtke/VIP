@@ -1,0 +1,12 @@
+#!/bin/bash
+# Launch script for opening a vim project
+
+# This should be the GUI vim
+VIM=/usr/bin/gvim
+
+if [[ ! $# -eq 1 ]]; then
+	# Invalid number of arguments
+	exit
+fi
+
+$VIM -c "call vip#Open('$1')"
