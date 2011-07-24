@@ -1,3 +1,4 @@
+let g:vip_loaded = 1
 " IDEAS:
 " - Create user-configurable options via commands that will write to the
 "   project file

@@ -1,6 +1,9 @@
-" In/Out-file names
-let s:out_file = 'out.vim'
-let s:in_file = 'in.vim'
+" Headers!
+let s:header_pattern = '^\[.*\]$'
+
+let s:header_project = "[vim project]"
+let s:header_in = "[in]"
+let s:header_out = "[out]"
 
 " Project-agnostic menus
 " Project-specific ones can be created using commands in in.vim
@@ -36,9 +39,15 @@ endfunction
 " Closes the current project
 function! vip#CloseCurrentProject()
 	if has_key(s:current_project, 'name')
-		" Source the outfile, if applicable
+		" Delete the in-script
+		if has_key(s:current_project, 'in')
+			call delete(s:current_project['in'])
+		endif
+
+		" Source the outfile, if applicable, then delete it
 		if has_key(s:current_project, 'out')
 			execute 'source '.s:current_project['out']
+			call delete(s:current_project['out'])
 		endif
 
 		" Tear down the menu
@@ -68,8 +77,12 @@ function! vip#Open(file)
 	" Read in the file
 	let lines = readfile(a:file)
 
+	" Keep track of the current header
+	" The first one should be [vim project]
+	let header = tolower(lines[0])
+
 	" Make sure it appears to be a valid file
-	if tolower(lines[0]) != "[vim project]"
+	if header != s:header_project
 		echoerr "File doesn't appear to be a valid vim project: '".a:file."'"
 		return
 	endif
@@ -77,13 +90,29 @@ function! vip#Open(file)
 	" Create a cache for the new project
 	let new_project = {}
 
+	" Store the in-script or out-script
+	let in_script = []
+	let out_script = []
+
 	" Loop through line-by-line
 	for line in lines
-		let eq = match(line, "=") " get the index of the equals sign
-		if eq != -1
-			let name = strpart(line, 0, eq)
-			let value = strpart(line, eq+1)
-			let new_project[tolower(name)] = value
+		" If this line is a header, update and continue
+		if line =~ s:header_pattern
+			let header = tolower(line)
+			continue
+		endif
+
+		if header == s:header_project
+			let eq = match(line, "=") " get the index of the equals sign
+			if eq != -1
+				let name = strpart(line, 0, eq)
+				let value = strpart(line, eq+1)
+				let new_project[tolower(name)] = value
+			endif
+		elseif header == s:header_in
+			call add(in_script, line)
+		elseif header == s:header_out
+			call add(out_script, line)
 		endif
 	endfor
 
@@ -91,6 +120,36 @@ function! vip#Open(file)
 	if !has_key(new_project, 'name')
 		echoerr "This project has no name."
 		return
+	endif
+
+	" TODO?: support Windows (uses $TEMP)
+	let tmp = $TMPDIR
+	let s = "/"
+
+	" If any in-script was provided, save it
+	if len(in_script) > 0
+		" Get a temporary file name
+		let in_script_file = tmp.s."vimproject-".new_project['name']."-in"
+
+		" Save it
+		if writefile(in_script, in_script_file) == 0
+			let new_project['in'] = in_script_file
+		else
+			echoerr "Error saving temporary file: ".in_script_file
+		endif
+	endif
+
+	" If any out-script was provided, save it
+	if len(out_script) > 0
+		" Get a temporary file name
+		let out_script_file = tmp.s."vimproject-".new_project['name']."-out"
+
+		" Save it
+		if writefile(out_script, out_script_file) == 0
+			let new_project['out'] = out_script_file
+		else
+			echoerr "Error saving temporary file: ".out_script_file
+		endif
 	endif
 
 	" Set 'file' to the full path of a:file
@@ -114,14 +173,14 @@ function! vip#Open(file)
 
 	" Save the in and out properties, if the files exist
 	" First the infile
-	if filereadable(s:in_file)
-		let new_project['in'] = new_project['root'].'/'.s:in_file
-	endif
+	" if filereadable(s:in_file)
+	" 	let new_project['in'] = new_project['root'].'/'.s:in_file
+	" endif
 
 	" Now the outfile
-	if filereadable(s:out_file)
-		let new_project['out'] = new_project['root'].'/'.s:out_file
-	endif
+	" if filereadable(s:out_file)
+	" 	let new_project['out'] = new_project['root'].'/'.s:out_file
+	" endif
 
 	" Do any cleanup of existing projects, if necessary
 	call vip#CloseCurrentProject()
