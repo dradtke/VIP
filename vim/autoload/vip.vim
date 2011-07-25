@@ -1,3 +1,11 @@
+" Currently supported .vip file tags:
+" -----------------------------------
+" Name
+" Compiler
+" Targets
+" Exec
+"
+
 " Headers!
 let s:header_pattern = '^\[.*\]$'
 
@@ -170,17 +178,6 @@ function! vip#Open(file)
 	
 	" CD to the project's root
 	execute 'cd '.new_project['root']
-
-	" Save the in and out properties, if the files exist
-	" First the infile
-	" if filereadable(s:in_file)
-	" 	let new_project['in'] = new_project['root'].'/'.s:in_file
-	" endif
-
-	" Now the outfile
-	" if filereadable(s:out_file)
-	" 	let new_project['out'] = new_project['root'].'/'.s:out_file
-	" endif
 
 	" Do any cleanup of existing projects, if necessary
 	call vip#CloseCurrentProject()
