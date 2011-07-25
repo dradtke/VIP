@@ -3,7 +3,7 @@ VIP
 
 VIP is a modular project-management plugin for Vim. Unlike other Vim project plugins that serve primarily as a file browser with features, VIP doesn't offer any file-browsing functionality. Instead, VIP's primary purpose is to offer a "project file," similar to Visual Studio's .sln, that you can open to have your project in Vim ready to go.
 
-Designed primarily for use with a graphical version of Vim, much of VIP's functionality can be discovered via the toolbar. When a project is open, a new men item "Project" will appear, letting you know what you can do with your project via VIP.
+Designed primarily for use with a graphical version of Vim, much of VIP's functionality can be discovered via the toolbar. When a project is open, a new menu item "Project" will appear, letting you know what you can do with your project via VIP, such as build and run your project.
 
 The VIP project file is designed similarly to Linux desktop files. Right now you have to manually create one for each project, but the syntax is fairly straightforward. The beginning of each one should look something like this:
 
