@@ -46,3 +46,8 @@ Here is an example .vip file:
     " Map F11 and F12 to build and run, respectively
     nmap <F11> :call vip#Build()<cr>
     nmap <F12> :call vip#Exec()<cr>
+
+Install
+-------
+
+You can install this project by extracting the contents of `vim/` to your vim settings directory, or via [Pathogen](https://github.com/tpope/vim-pathogen).
