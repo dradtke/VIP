@@ -7,8 +7,8 @@ Designed primarily for use with a graphical version of Vim, much of VIP's functi
 
 The VIP project file is designed similarly to Linux desktop files. Right now you have to manually create one for each project, but the syntax is fairly straightforward. The beginning of each one should look something like this:
 
-`[Vim Project]  
-Name=<project name>`
+    [Vim Project]
+    Name=<project name>
 
 Underneath the name can be any number of `Property=Value` pairs, each of them defining various aspects of the project. Right now the following properties are supported:
 
