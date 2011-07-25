@@ -1,0 +1,11 @@
+To install vim projects as a separate filetype in Linux:
+--------------------------------------------------------
+
+* Copy open-vimproject to somewhere on your PATH
+* Copy open-vimproject.desktop to /usr/share/applications (or ~/.local/share/applications to install for just one user)
+* Install the mime type with this command (run as root to install for all users):
+    $ xdg-mime install vimproject-mime.xml
+* Set the default application with this command (run as root to set for all users):
+    $ xdg-mime default open-vimproject.desktop application/vim-project
+* You might also be able to change the icon with this command, but I haven't been able to get it to work:
+    $ xdg-icon-resource install --context mimetypes --size 48 /usr/share/icons/hicolor/48x48/apps/gvim.png x-application-vimproject

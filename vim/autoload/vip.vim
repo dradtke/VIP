@@ -1,6 +1,7 @@
 " Currently supported .vip file tags:
 " -----------------------------------
 " Name
+" Root
 " Compiler
 " Targets
 " Exec
@@ -16,7 +17,7 @@ let s:header_out = "[out]"
 " Project-agnostic menus
 " Project-specific ones can be created using commands in in.vim
 let s:menu_sep = '&Project.-sep-'
-let s:close_project = '&Project.&Close'
+let s:close_project = '&Project.&Close\ Project'
 let s:build_default = '&Project.&Build.<default>'
 let s:run_default = '&Project.&Run.<default>'
 let s:run_with_args = '&Project.&Run.&With\ Args\.\.\.'
@@ -60,6 +61,8 @@ function! vip#CloseCurrentProject()
 
 		" Tear down the menu
 		call vip#TeardownMenu()
+
+		echo "Closed project '".s:current_project['name']."'"
 	endif
 	
 	" Reset the dict
@@ -193,12 +196,12 @@ function! vip#Open(file)
 	if has_key(new_project, 'in')
 		execute 'source '.new_project['in']
 	endif
+
+	echo "Opened project '".s:current_project['name']."'"
 endfunction
 
 " Sets up the project menu
 function! vip#SetupMenu()
-	execute 'menu '.s:menu_sep.' :'
-	execute 'menu '.s:close_project.' <Esc>:call vip#CloseCurrentProjectDialog()<cr>'
 	execute 'menu '.s:build_default.' <Esc>:make!<cr>'
 	
 	" Only add run items if 'exec' was defined
@@ -215,12 +218,13 @@ function! vip#SetupMenu()
 			call add(s:custom_menus, menu_item)
 		endfor
 	endif
+
+	execute 'menu '.s:menu_sep.' :'
+	execute 'menu '.s:close_project.' <Esc>:call vip#CloseCurrentProjectDialog()<cr>'
 endfunction
 
 " Tears down project-agnostic menu items
 function! vip#TeardownMenu()
-	execute 'unmenu '.s:menu_sep
-	execute 'unmenu '.s:close_project
 	execute 'unmenu '.s:build_default
 
 	" Remove run items if necessary
@@ -233,6 +237,9 @@ function! vip#TeardownMenu()
 	for item in s:custom_menus
 		execute 'unmenu '.item
 	endfor
+
+	execute 'unmenu '.s:menu_sep
+	execute 'unmenu '.s:close_project
 endfunction
 
 " Compiles the program
