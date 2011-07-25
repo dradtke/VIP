@@ -1,15 +1,16 @@
-let g:vip_loaded = 1
-" IDEAS:
-" - Create user-configurable options via commands that will write to the
-"   project file
-" - Support saving the list of open files
-" - Support automatically setting up things like make and omnifunctions
-" - Create a default window layout? (errors, taglist, etc.)
+"====================================================================================================
+" File: plugin/vip.vim
+" Author: Damien Radtke (admin at damienradtke.org)
+" Version: 0.1
+"====================================================================================================
 
-" If browsing is supported, create a method, command, and menu item for
-" opening projects
+if &cp || exists('g:vip_plugin_loaded')
+	finish
+endif
+let g:vip_plugin_loaded = 1
 
 if has("gui")
+	" Create a menu item for opening projects
 	function! BrowseForProject()
 		let result = browse(0, "Open VIP Project", getcwd(), "*.vip")
 		if result != ""
