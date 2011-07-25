@@ -1,6 +1,4 @@
 VIP
----
+===
 
-This is a project plugin for Vim. The idea is to support separate project files, similar to what IDE's use, rather than use one catch-all project list that contains everything.
-
-More updates to come.
+VIP is a modular project-management plugin for Vim.
