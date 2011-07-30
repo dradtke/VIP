@@ -5,15 +5,136 @@ vip-plugin.txt	For Vim version 7.3.  Last change: 2011 Jul 29
 ==============================================================================
 CONTENTS						*vip* *vip-plugin*
 
-	 1. Overview........................|vip-overview|
-	99. License.........................|vip-license|
+	 1. Overview..............................|vip-overview|
+	 2. Project File Syntax...................|vip-project-file|
+		i.   .............................|vip-properties|
+		ii.  .............................|vip-headers|
+		iii. .............................|vip-example|
+	 3. Commands..............................|vip-commands|
+	 4. Functions.............................|vip-functions|
+	 5. GUI Integration.......................|vip-gui|
+	 6. Mimetype Installation.................|vip-mimetype-install|
+	 7. License...............................|vip-license|
 
 
 ==============================================================================
 1. Overview						*vip-overview*
 
+The purpose of the VIP plugin is to support modular projects. Modern day IDEs
+allow you to open a project by double-clicking on the project file, but until
+now, this was impossible with Vim.
+
+VIP does not come with a file browser; that type of functionality is left up
+to plugins such as NERDTree, MiniBufExplorer, and Command-T. Instead, the
+focus is on getting a project's configuration up and running with as little
+effort as possible, such as compiler and custom keymappings.
+
+A project is defined via a specially-formatted project file, not unlike
+freedesktop.org desktop files. The .vip extension is recommended for these
+files.
+
 ==============================================================================
-99. License						*vip-license*
+2. Project File Syntax				*vip-syntax* *vip-project-file*
+
+The project file uses a syntax very similar to freedesktop.org desktop files.
+Here is the start of an example file my-project.vip: >
+
+    [Vim Project]
+    Name=My Project
+<
+
+The first line is a header, which changes how the following lines are
+interpreted. The "Vim Project" header _must_ be the first line of the file.
+Everything after this header is formatted as <property>=<value> pairs.
+
+Supported Properties~
+							*vip-properties*
+
+    * Name
+    * Root
+    * Compiler
+    * Targets
+    * Exec
+
+Name: required
+    Specifies the name of your project.
+
+Root: optional
+    Changes the root of the project. Defaults to the directory containing this
+    file. When the project is opened, Vim will automatically cd to this
+    directory.
+
+Compiler: optional
+    Specifies the compiler used to build this project. Must be compatible with
+    the 'make' command.
+
+Targets: optional
+    A comma-separated list of non-default build targets, e.g. "compile,clean".
+
+Exec: optional
+    The system command to run this project.
+
+Additional Headers~
+							*vip-headers*
+
+[In]
+
+Everything following this header will be sourced as vimscript when the
+project is opened. This example maps F11 and F12 to build and run the project,
+respectively: >
+
+    [In]
+    nmap <F11> :call vip#Build()<cr>
+    nmap <F12> :call vip#Exec()<cr>
+<
+
+------------------------------------------------------------------------------
+[Out]
+
+Everything following this header will be sourced as vimscript when the
+project is closed. This example undoes the mappings created when the project
+was opened: >
+
+    [Out]
+    nmap <F11> :echo "Sorry, can't compile. This project is now closed."
+    nmap <F12> :echo "Sorry, can't execute. This project is now closed."
+<
+
+Full Example~
+							*vip-example*
+
+my-project.vip:
+
+>
+    [Vim Project]
+    Name=My Project
+    Compiler=gcc
+    Targets=compile,clean
+    Exec=./my-proj
+    
+    [In]
+    nmap <F11> :call vip#Build()<cr>
+    nmap <F12> :call vip#Exec()<cr>
+
+    [Out]
+    nmap <F11> :echo "No project open."
+    nmap <F12> :echo "No project open."
+<
+
+==============================================================================
+3. Commands						*vip-commands*
+
+==============================================================================
+4. Functions						*vip-functions*
+
+==============================================================================
+5. GUI Integration					*vip-gui*
+
+==============================================================================
+6. Mimetype Installation				*vip-mimetype-install*
+
+==============================================================================
+7. License						*vip-license*
 
 Copyright (c) 2011, Damien Radtke
 
