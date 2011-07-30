@@ -1,0 +1,25 @@
+vip-plugin.txt	For Vim version 7.3.  Last change: 2011 Jul 29
+
+			VIP Project Plugin for Vim
+
+==============================================================================
+CONTENTS						*vip* *vip-plugin*
+
+	 1. Overview........................|vip-overview|
+	99. License.........................|vip-license|
+
+
+==============================================================================
+1. Overview						*vip-overview*
+
+==============================================================================
+99. License						*vip-license*
+
+Copyright (c) 2011, Damien Radtke
+
+This software is released under the terms of the Beerware License. Feel free
+to use it however you please, but if you run in to me someday, it would be
+nice if you could buy me a beer.
+ 
+==============================================================================
+vim:tw=78:fo=tcq2:isk=!-~,^*,^\|,^\":ts=8:ft=help:norl:
