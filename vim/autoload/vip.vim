@@ -165,7 +165,7 @@ function! vip#Open(filename)
 	let s:custom_menus = []
 
 	" Make any necessary changes to the menu
-	call vip#SetupMenu()
+	call s:SetupMenu()
 
 	" Finally, source the infile, if applicable
 	if has_key(new_project, 'in')
@@ -199,7 +199,7 @@ function! vip#CloseCurrentProject()
 		endif
 
 		" Tear down the menu
-		call vip#TeardownMenu()
+		call s:TeardownMenu()
 
 		echo "Closed project '".s:current_project['name']."'"
 	endif
@@ -219,9 +219,9 @@ function! vip#CloseCurrentProjectDialog()
 endfunction
 " }}}
 
-" {{{ vip#SetupMenu()
+" {{{ s:SetupMenu()
 " Sets up the project menu
-function! vip#SetupMenu()
+function! s:SetupMenu()
 	execute 'menu '.s:build_default.' <Esc>:make!<cr>'
 	
 	" Only add run items if 'exec' was defined
@@ -244,9 +244,9 @@ function! vip#SetupMenu()
 endfunction
 " }}}
 
-" {{{ vip#TeardownMenu()
+" {{{ s:TeardownMenu()
 " Tears down project-agnostic menu items
-function! vip#TeardownMenu()
+function! s:TeardownMenu()
 	execute 'unmenu '.s:build_default
 
 	" Remove run items if necessary

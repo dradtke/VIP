@@ -77,6 +77,7 @@ Exec: optional
 							*vip-headers*
 Additional Headers~
 
+------------------------------------------------------------------------------
 [In]
 
 Everything following this header will be sourced as vimscript when the
@@ -100,6 +101,7 @@ was opened: >
     nmap <F12> :echo "Sorry, can't execute. This project is now closed."
 <
 
+------------------------------------------------------------------------------
 							*vip-example*
 Full Example~
 
@@ -124,15 +126,61 @@ my-project.vip: >
 3. Commands						*vip-commands*
 
 |:OpenProject|		Opens a browsing window to open a VIP project
+|:CloseProject|		Closes the current project
 
 ==============================================================================
 4. Functions						*vip-functions*
 
+vip#Open({filename})		Opens filename as a VIP project
+vip#IsProjectOpen()		Returns 1 if a project is open, 0 otherwise
+vip#CloseCurrentProject()	Closes the currently-open project
+vip#CloseCurrentProjectDialog()	Opens a dialog requesting confirmation
+				  before closing the current project
+
+vip#Build()			Builds the current project. Equivalent to
+				  using the command |:make!|. The project
+				  property 'Compiler' must be defined for this
+				  to work properly
+
+vip#BuildTarget({target})	Builds the current project using target
+				  {target}. (see vip#Build)
+
+vip#Exec()			Runs the current project. The project property
+				  'Exec' must be defined for this to work
+				  properly
+
+vip#ExecWithArgs({args})	Runs the current project with the provided
+				  string passed in as its arguments (see
+				  vip#Exec)
+
+vip#ExecPromptArgs()		Prompts for arguments, then runs the program
+				  using them (see vip#Exec)
+
+vip#GetProjectProperty({prop})	Retrieves a property from the project dict
+
+vip#GetProjectPropertyWithDefault({prop}, {default})
+				Retrieves a property from the project dict,
+				  using {default} if it doesn't exist
+
 ==============================================================================
 5. GUI Integration					*vip-gui*
 
+VIP is designed to work with a graphical version of Vim. You can open a
+project file by going to 'File->Open VIP Project...', and once a project is
+open, a new |Project| menu should appear that will provide menu items for
+building and running it.
+
 ==============================================================================
 6. Mimetype Installation				*vip-mimetype-install*
+
+The real power of VIP comes when you can open up your project with a quick
+double-click, but that lies outside the abilities of a simple Vim plugin. The
+'extras' folder contains some tools to help you set up your system to do just
+that.
+
+Right now only Linux is supported. Read the installation instructions provided
+in extras/linux to learn how to install the 'application/vim-project' mimetype
+and set the default application.
 
 ==============================================================================
 7. License						*vip-license*
