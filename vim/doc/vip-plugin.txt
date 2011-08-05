@@ -47,8 +47,8 @@ The first line is a header, which changes how the following lines are
 interpreted. The "Vim Project" header _must_ be the first line of the file.
 Everything after this header is formatted as <property>=<value> pairs.
 
-Supported Properties~
 							*vip-properties*
+Supported Properties~
 
     * Name
     * Root
@@ -74,8 +74,8 @@ Targets: optional
 Exec: optional
     The system command to run this project.
 
-Additional Headers~
 							*vip-headers*
+Additional Headers~
 
 [In]
 
@@ -100,12 +100,11 @@ was opened: >
     nmap <F12> :echo "Sorry, can't execute. This project is now closed."
 <
 
-Full Example~
 							*vip-example*
+Full Example~
 
-my-project.vip:
+my-project.vip: >
 
->
     [Vim Project]
     Name=My Project
     Compiler=gcc
@@ -123,6 +122,8 @@ my-project.vip:
 
 ==============================================================================
 3. Commands						*vip-commands*
+
+|:OpenProject|		Opens a browsing window to open a VIP project
 
 ==============================================================================
 4. Functions						*vip-functions*
