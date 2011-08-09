@@ -9,24 +9,8 @@ if &cp || exists('g:vip_plugin_loaded')
 endif
 let g:vip_plugin_loaded = 1
 
-function! s:BrowseForProject()
-	let result = browse(0, "Open VIP Project", getcwd(), "*.vip")
-	if result != ""
-		call vip#Open(result)
-	endif
-endfunction
-
-function! s:CloseProject()
-	if !vip#IsProjectOpen()
-		echo "No project is open to close."
-		return
-	endif
-
-	call vip#CloseCurrentProject()
-endfunction
-
-command! OpenProject call s:BrowseForProject()
-command! CloseProject call s:CloseProject()
+command! OpenProject call vip#BrowseForProject()
+command! CloseProject call vip#CloseCurrentProject()
 
 " Create a menu item for opening projects
-au GUIEnter * menu 10.315 &File.&Open\ VIP\ Project\.\.\.<Tab>:OpenProject <Esc>:call s:BrowseForProject()<cr>
+au GUIEnter * menu 10.315 &File.&Open\ VIP\ Project\.\.\.<Tab>:OpenProject <Esc>:call vip#BrowseForProject()<cr>

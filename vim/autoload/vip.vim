@@ -51,6 +51,21 @@ let s:custom_menus = []
 
 " }}}
 
+" {{{ vip#BrowseForProject()
+" Browse for a vim project to open
+function! vip#BrowseForProject()
+	if !has("browse")
+		echoerr "Browsing not supported. Type ':help +browse' for more information."
+		return
+	endif
+
+	let result = browse(0, "Open VIP Project", getcwd(), "*.vip")
+	if result != ""
+		call vip#Open(result)
+	endif
+endfunction
+" }}}
+
 " {{{ vip#Open(file)
 " Open a vim project
 function! vip#Open(filename)
@@ -89,6 +104,11 @@ function! vip#Open(filename)
 		endif
 
 		if header == s:header_project
+			" If the first line is a hash, ignore it; basic commenting support
+			if line[0] == '#'
+				continue
+			endif
+
 			let matched = matchlist(line, s:prop_pattern)
 			if len(matched) > 0
 				let key = matched[1]
@@ -108,36 +128,6 @@ function! vip#Open(filename)
 		return
 	endif
 
-	" TODO?: support Windows (uses $TEMP)
-	let tmp = $TMPDIR
-	let s = "/"
-
-	" If any in-script was provided, save it
-	if len(in_script) > 0
-		" Get a temporary file name
-		let in_script_file = tmp.s."vimproject-".new_project['name']."-in"
-
-		" Save it
-		if writefile(in_script, in_script_file) == 0
-			let new_project['in'] = in_script_file
-		else
-			echoerr "Error saving temporary file: ".in_script_file
-		endif
-	endif
-
-	" If any out-script was provided, save it
-	if len(out_script) > 0
-		" Get a temporary file name
-		let out_script_file = tmp.s."vimproject-".new_project['name']."-out"
-
-		" Save it
-		if writefile(out_script, out_script_file) == 0
-			let new_project['out'] = out_script_file
-		else
-			echoerr "Error saving temporary file: ".out_script_file
-		endif
-	endif
-
 	" Set 'file' to the full path of a:filename
 	let new_project['file'] = fnamemodify(a:filename, ':p')
 
@@ -151,6 +141,16 @@ function! vip#Open(filename)
 	if has_key(new_project, 'compiler')
 		execute 'compiler! '.new_project['compiler']
 	endif
+
+	" If any in-script was given, save it
+	if len(in_script) != 0
+		let new_project['in'] = in_script
+	endif
+
+	" If any out-script was given, save it
+	if len(out_script) != 0
+		let new_project['out'] = out_script
+	endif
 	
 	" TODO: Put other tag recognitions here, e.g. omnifunc?
 	
@@ -158,7 +158,9 @@ function! vip#Open(filename)
 	execute 'cd '.new_project['root']
 
 	" Do any cleanup of existing projects, if necessary
-	call vip#CloseCurrentProject()
+	if vip#IsProjectOpen()
+		call vip#CloseCurrentProject()
+	endif
 
 	" Set the current project and reset custom menus
 	let s:current_project = new_project
@@ -169,7 +171,7 @@ function! vip#Open(filename)
 
 	" Finally, source the infile, if applicable
 	if has_key(new_project, 'in')
-		execute 'source '.new_project['in']
+		call s:RunScript(new_project['in'])
 	endif
 
 	echo "Opened project '".s:current_project['name']."'"
@@ -187,21 +189,17 @@ endfunction
 " Closes the current project
 function! vip#CloseCurrentProject()
 	if has_key(s:current_project, 'name')
-		" Delete the in-script
-		if has_key(s:current_project, 'in')
-			call delete(s:current_project['in'])
-		endif
-
-		" Source the outfile, if applicable, then delete it
+		" Source the outfile, if applicable
 		if has_key(s:current_project, 'out')
-			execute 'source '.s:current_project['out']
-			call delete(s:current_project['out'])
+			call s:RunScript(s:current_project['out'])
 		endif
 
 		" Tear down the menu
 		call s:TeardownMenu()
 
 		echo "Closed project '".s:current_project['name']."'"
+	else
+		echoerr "No project is open to close."
 	endif
 	
 	" Reset the dict
@@ -216,52 +214,6 @@ function! vip#CloseCurrentProjectDialog()
 	if confirm("Close the current project?", "&OK\n&Cancel") == 1
 		call vip#CloseCurrentProject()
 	endif
-endfunction
-" }}}
-
-" {{{ s:SetupMenu()
-" Sets up the project menu
-function! s:SetupMenu()
-	execute 'menu '.s:build_default.' <Esc>:make!<cr>'
-	
-	" Only add run items if 'exec' was defined
-	if has_key(s:current_project, 'exec')
-		execute 'menu '.s:run_default.' <Esc>:!'.s:current_project['exec'].'<cr>'
-		execute 'menu '.s:run_with_args.' <Esc>:call vip#ExecPromptArgs()<cr>'
-	endif
-
-	" Integrate custom build targets into the menu
-	if has_key(s:current_project, 'targets')
-		for target in split(s:current_project['targets'], ',')
-			let menu_item = "&Project.&Build.".target
-			execute "menu ".menu_item." :call vip#BuildWithTarget('".target."')<cr>"
-			call add(s:custom_menus, menu_item)
-		endfor
-	endif
-
-	execute 'menu '.s:menu_sep.' :'
-	execute 'menu '.s:close_project.' <Esc>:call vip#CloseCurrentProjectDialog()<cr>'
-endfunction
-" }}}
-
-" {{{ s:TeardownMenu()
-" Tears down project-agnostic menu items
-function! s:TeardownMenu()
-	execute 'unmenu '.s:build_default
-
-	" Remove run items if necessary
-	if has_key(s:current_project, 'exec')
-		execute 'unmenu '.s:run_default
-		execute 'unmenu '.s:run_with_args
-	endif
-
-	" Remove custom menus
-	for item in s:custom_menus
-		execute 'unmenu '.item
-	endfor
-
-	execute 'unmenu '.s:menu_sep
-	execute 'unmenu '.s:close_project
 endfunction
 " }}}
 
@@ -344,3 +296,71 @@ function! vip#GetProjectPropertyWithDefault(prop, default)
 endfunction
 " }}}
 
+" {{{ s:RunScript()
+" Sources a script, which is passed in as a list of lines
+" Saves the script in the temporary directory and :source's it
+function! s:RunScript(script)
+	" TODO?: support Windows (uses $TEMP)
+	let tmp = $TMPDIR
+	let s = "/"
+
+	" Create a file in the temporary directory and write the script to it
+	let file = tmp.s.'vip-temp-script'
+	if writefile(a:script, file) != 0
+		echoerr "ERROR saving temporary script: ".file
+		return
+	endif
+
+	" Source the script
+	execute 'source '.file
+
+	" We're done, remove it
+	call delete(file)
+endfunction
+" }}}
+
+" {{{ s:SetupMenu()
+" Sets up the project menu
+function! s:SetupMenu()
+	execute 'menu '.s:build_default.' <Esc>:make!<cr>'
+	
+	" Only add run items if 'exec' was defined
+	if has_key(s:current_project, 'exec')
+		execute 'menu '.s:run_default.' <Esc>:!'.s:current_project['exec'].'<cr>'
+		execute 'menu '.s:run_with_args.' <Esc>:call vip#ExecPromptArgs()<cr>'
+	endif
+
+	" Integrate custom build targets into the menu
+	if has_key(s:current_project, 'targets')
+		for target in split(s:current_project['targets'], ',')
+			let menu_item = "&Project.&Build.".target
+			execute "menu ".menu_item." :call vip#BuildTarget('".target."')<cr>"
+			call add(s:custom_menus, menu_item)
+		endfor
+	endif
+
+	execute 'menu '.s:menu_sep.' :'
+	execute 'menu '.s:close_project.' <Esc>:call vip#CloseCurrentProjectDialog()<cr>'
+endfunction
+" }}}
+
+" {{{ s:TeardownMenu()
+" Tears down project-agnostic menu items
+function! s:TeardownMenu()
+	execute 'unmenu '.s:build_default
+
+	" Remove run items if necessary
+	if has_key(s:current_project, 'exec')
+		execute 'unmenu '.s:run_default
+		execute 'unmenu '.s:run_with_args
+	endif
+
+	" Remove custom menus
+	for item in s:custom_menus
+		execute 'unmenu '.item
+	endfor
+
+	execute 'unmenu '.s:menu_sep
+	execute 'unmenu '.s:close_project
+endfunction
+" }}}
