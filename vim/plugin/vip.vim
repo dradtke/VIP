@@ -29,4 +29,4 @@ command! OpenProject call s:BrowseForProject()
 command! CloseProject call s:CloseProject()
 
 " Create a menu item for opening projects
-au GUIEnter * menu 10.315 &File.&Open\ VIP\ Project\.\.\.<Tab>:OpenProject <Esc>:call BrowseForProject()<cr>
+au GUIEnter * menu 10.315 &File.&Open\ VIP\ Project\.\.\.<Tab>:OpenProject <Esc>:call s:BrowseForProject()<cr>
