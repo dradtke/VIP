@@ -34,20 +34,9 @@ Right now only Linux is supported. Read the INSTALL file for more details.
 Example
 -------
 
-Here is an example .vip file:
-
-    [Vim Project]
-    Name=Hello World
-    Compiler=gcc
-    Targets=clean
-    Exec=hello-world
-    
-    [In]
-    " Map F11 and F12 to build and run, respectively
-    nmap <F11> :call vip#Build()<cr>
-    nmap <F12> :call vip#Exec()<cr>
+An example project using VIP can be found [here](https://github.com/dradtke/VIP-Example).
 
 Install
 -------
 
-You can install this project by extracting the contents of `vim/` to your vim settings directory, or via [Pathogen](https://github.com/tpope/vim-pathogen).
+You can install this plugin by extracting the contents of `vim/` to your vim settings directory, or via [Pathogen](https://github.com/tpope/vim-pathogen).
