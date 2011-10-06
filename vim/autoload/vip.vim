@@ -178,6 +178,17 @@ function! vip#Open(filename)
 endfunction
 " }}}
 
+" {{{ vip#OpenProjectCommand()
+" Opens a project; if none specified, opens a browser
+function! vip#OpenProjectCommand(...)
+	if a:0 == 0
+		call vip#BrowseForProject()
+	else
+		call vip#Open(a:1)
+	endif
+endfunction
+" }}}
+
 " {{{ vip#IsProjectOpen()
 " Returns 1 if a project is open, 0 otherwise
 function! vip#IsProjectOpen()
@@ -213,6 +224,53 @@ endfunction
 function! vip#CloseCurrentProjectDialog()
 	if confirm("Close the current project?", "&OK\n&Cancel") == 1
 		call vip#CloseCurrentProject()
+	endif
+endfunction
+" }}}
+
+" {{{ vip#CreateNewProject()
+" Creates a new project
+function! vip#CreateNewProject()
+	" If a project is open, prompt the user first
+	if vip#IsProjectOpen()
+		let response = (input('Close current project and create new one? y/[n]: '))
+		if response != 'y'
+			return
+		endif
+		
+		call vip#CloseCurrentProject()
+	endif
+
+	let name = fnamemodify(getcwd(), ":t")
+
+	" Prompt for the project file name
+	let file_name = input('Project file name: ', name.'.vip')
+	if file_name == ''
+		return
+	endif
+
+	" If it exists, make sure the user wants to overwrite it
+	if filereadable(file_name)
+		let response = tolower(input("File '".file_name."' already exists. Overwrite? y/[n]: "))
+		if response != 'y'
+			return
+		endif
+	endif
+
+	let file = ["[Vim Project]",
+				\"Name=".name,
+				\"",
+				\"[In]",
+				\"\" Everything after this header will be sourced when this project is opened",
+				\"",
+				\"[Out]",
+				\"\" Everything after this header will be sourced when this project is closed"]
+	
+	" Try to write the project file
+	if (writefile(file, file_name) == -1)
+		echoerr "\nFailed to write project file to '".file_name."'"
+	else
+		echo "\nProject file written to '".file_name."'"
 	endif
 endfunction
 " }}}
