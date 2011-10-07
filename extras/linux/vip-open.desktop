@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
 Name=Open VIP Project
-Exec=open-vimproject %f
+Exec=gvim -f -c "call vip#Open('%f')"
 Icon=gvim
 Comment=Open as a VIP project in gVim
