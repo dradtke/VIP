@@ -1,6 +1,6 @@
 "====================================================================================================
 " File: autoload/vip.vim
-" Author: Damien Radtke (admin at damienradtke.org)
+" Author: Damien Radtke (admin at damienradtke dot org)
 " Version: 0.1
 "====================================================================================================
 
@@ -259,6 +259,7 @@ function! vip#CreateNewProject()
 
 	let file = ["[Vim Project]",
 				\"Name=".name,
+				\"Compiler=gcc",
 				\"",
 				\"[In]",
 				\"\" Everything after this header will be sourced when this project is opened",
@@ -380,7 +381,6 @@ endfunction
 " {{{ s:SetupMenu()
 " Sets up the project menu
 function! s:SetupMenu()
-	execute 'menu '.s:build_default.' <Esc>:make!<cr>'
 	
 	" Only add run items if 'exec' was defined
 	if has_key(s:current_project, 'exec')
@@ -390,14 +390,15 @@ function! s:SetupMenu()
 
 	" Integrate custom build targets into the menu
 	if has_key(s:current_project, 'targets')
+		execute 'menu '.s:build_default.' <Esc>:make!<cr>'
 		for target in split(s:current_project['targets'], ',')
 			let menu_item = "&Project.&Build.".target
 			execute "menu ".menu_item." :call vip#BuildTarget('".target."')<cr>"
 			call add(s:custom_menus, menu_item)
+			execute 'menu '.s:menu_sep.' :'
 		endfor
 	endif
 
-	execute 'menu '.s:menu_sep.' :'
 	execute 'menu '.s:close_project.' <Esc>:call vip#CloseCurrentProjectDialog()<cr>'
 endfunction
 " }}}
@@ -422,3 +423,4 @@ function! s:TeardownMenu()
 	execute 'unmenu '.s:close_project
 endfunction
 " }}}
+
