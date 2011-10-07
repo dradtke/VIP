@@ -210,7 +210,7 @@ function! vip#CloseCurrentProject()
 
 		echo "Closed project '".s:current_project['name']."'"
 	else
-		echoerr "No project is open to close."
+		echo "Nothing to close."
 	endif
 	
 	" Reset the dict
@@ -381,22 +381,24 @@ endfunction
 " {{{ s:SetupMenu()
 " Sets up the project menu
 function! s:SetupMenu()
-	
+	" Create the Build menu
+	if has_key(s:current_project, 'compiler')
+		execute 'menu '.s:build_default.' <Esc>:make!<cr>'
+		" Integrate custom build targets into the menu
+		if has_key(s:current_project, 'targets')
+			for target in split(s:current_project['targets'], ',')
+				let menu_item = "&Project.&Build.".target
+				execute "menu ".menu_item." :call vip#BuildTarget('".target."')<cr>"
+				call add(s:custom_menus, menu_item)
+				"execute 'menu '.s:menu_sep.' :'
+			endfor
+		endif
+	endif
+
 	" Only add run items if 'exec' was defined
 	if has_key(s:current_project, 'exec')
 		execute 'menu '.s:run_default.' <Esc>:!'.s:current_project['exec'].'<cr>'
 		execute 'menu '.s:run_with_args.' <Esc>:call vip#ExecPromptArgs()<cr>'
-	endif
-
-	" Integrate custom build targets into the menu
-	if has_key(s:current_project, 'targets')
-		execute 'menu '.s:build_default.' <Esc>:make!<cr>'
-		for target in split(s:current_project['targets'], ',')
-			let menu_item = "&Project.&Build.".target
-			execute "menu ".menu_item." :call vip#BuildTarget('".target."')<cr>"
-			call add(s:custom_menus, menu_item)
-			execute 'menu '.s:menu_sep.' :'
-		endfor
 	endif
 
 	execute 'menu '.s:close_project.' <Esc>:call vip#CloseCurrentProjectDialog()<cr>'
@@ -419,7 +421,7 @@ function! s:TeardownMenu()
 		execute 'unmenu '.item
 	endfor
 
-	execute 'unmenu '.s:menu_sep
+	"execute 'unmenu '.s:menu_sep
 	execute 'unmenu '.s:close_project
 endfunction
 " }}}

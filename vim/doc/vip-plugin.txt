@@ -27,7 +27,7 @@ now, this was impossible with Vim.
 VIP does not come with a file browser; that type of functionality is left up
 to plugins such as NERDTree, MiniBufExplorer, and Command-T. Instead, the
 focus is on getting a project's configuration up and running with as little
-effort as possible, such as compiler and custom keymappings.
+effort as possible, such as setting the compiler and custom keymappings.
 
 A project is defined via a specially-formatted project file, not unlike
 freedesktop.org desktop files. The .vip extension is recommended for these
@@ -70,6 +70,7 @@ Compiler: optional
 
 Targets: optional
     A comma-separated list of non-default build targets, e.g. "compile,clean".
+    The "Compiler" option must also be set for these to show up in the menu.
 
 Exec: optional
     The system command to run this project.
@@ -125,8 +126,28 @@ my-project.vip: >
 ==============================================================================
 3. Commands						*vip-commands*
 
-|:OpenProject|		Opens a browsing window to open a VIP project
+|:OpenProject|		Opens a project
 |:CloseProject|		Closes the current project
+|:CreateProject|	Creates a project file in the current directory
+
+							*:OpenProject*
+:OpenProject [project]
+		Opens a VIP project. If a project file was provided, that
+		project is opened; otherwise, a browser window will open to
+		select one.
+
+							*:CloseProject*
+:CloseProject
+		Closes the current VIP project, if one is open.
+
+							*:CreateProject*
+:CreateProject
+		Creates a new project file in the current directory. The
+		directory's name is used as the project name, and you will be
+		prompted to provide a name for the project file. After it's
+		created, you can open up the new file and make additional
+		changes to it, such as specifying a compiler and in-or-out
+		scripts.
 
 ==============================================================================
 4. Functions						*vip-functions*
