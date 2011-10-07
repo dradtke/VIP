@@ -1,0 +1,12 @@
+[Vim Project]
+Name=Example VIP Project
+Compiler=gcc
+Targets=clean
+Exec=./hello
+
+[In]
+" Set some custom keybindings for this project
+" F11 builds the project, Shift+F11 cleans it, F12 runs it
+nmap <F11> :call vip#Build()<cr>
+nmap <S-F11> :call vip#BuildTarget('clean')<cr>
+nmap <F12> :call vip#Exec()<cr>
