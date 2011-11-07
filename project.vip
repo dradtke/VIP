@@ -1,5 +1,6 @@
 [Vim Project]
 Name=VIP
+Src=vim
 
 [In]
 nmap <F11> :! cp -rf vim/* ~/.vim/bundle/vip<cr>

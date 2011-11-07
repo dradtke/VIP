@@ -169,9 +169,14 @@ function! vip#Open(filename)
 	" Make any necessary changes to the menu
 	call s:SetupMenu()
 
+	" Open the source-viewing window
+	if has_key(s:current_project, 'src')
+		call s:OpenSourceBrowser(s:current_project['src'])
+	endif
+
 	" Finally, source the infile, if applicable
-	if has_key(new_project, 'in')
-		call s:RunScript(new_project['in'])
+	if has_key(s:current_project, 'in')
+		call s:RunScript(s:current_project['in'])
 	endif
 
 	echo "Opened project '".s:current_project['name']."'"
@@ -426,3 +431,14 @@ function! s:TeardownMenu()
 endfunction
 " }}}
 
+" {{{ s:OpenSourceBrowser(dir)
+" Opens a file browser in the given directory
+" Only compatible with NERDTree right now
+function! s:OpenSourceBrowser(dir)
+	if exists("loaded_nerd_tree")
+		" Use the NERDTree
+		exe "NERDTree ".a:dir
+		wincmd p
+	endif
+endfunction
+" }}}
