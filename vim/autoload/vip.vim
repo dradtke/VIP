@@ -170,9 +170,7 @@ function! vip#Open(filename)
 	call s:SetupMenu()
 
 	" Open the source-viewing window
-	if has_key(s:current_project, 'src')
-		call s:OpenSourceBrowser(s:current_project['src'])
-	endif
+	call s:OpenSourceBrowser(s:current_project['root'])
 
 	" Finally, source the infile, if applicable
 	if has_key(s:current_project, 'in')
@@ -209,6 +207,9 @@ function! vip#CloseCurrentProject()
 		if has_key(s:current_project, 'out')
 			call s:RunScript(s:current_project['out'])
 		endif
+
+		" Tear down the source browser
+		call s:TeardownSourceBrowser()
 
 		" Tear down the menu
 		call s:TeardownMenu()
@@ -392,7 +393,7 @@ function! s:SetupMenu()
 		" Integrate custom build targets into the menu
 		if has_key(s:current_project, 'targets')
 			for target in split(s:current_project['targets'], ',')
-				let menu_item = "&Project.&Build.".target
+				let menu_item = '&Project.&Build.'.target
 				execute "menu ".menu_item." :call vip#BuildTarget('".target."')<cr>"
 				call add(s:custom_menus, menu_item)
 				"execute 'menu '.s:menu_sep.' :'
@@ -413,7 +414,15 @@ endfunction
 " {{{ s:TeardownMenu()
 " Tears down project-agnostic menu items
 function! s:TeardownMenu()
-	execute 'unmenu '.s:build_default
+	if has_key(s:current_project, 'compiler')
+		execute 'unmenu '.s:build_default
+		" Remove custom build targets from the menu
+		if has_key(s:current_project, 'targets')
+			for target in split(s:current_project['targets'], ',')
+				execute 'unmenu &Project.&Build.'.target
+			endfor
+		endif
+	endif
 
 	" Remove run items if necessary
 	if has_key(s:current_project, 'exec')
@@ -435,10 +444,21 @@ endfunction
 " Opens a file browser in the given directory
 " Only compatible with NERDTree right now
 function! s:OpenSourceBrowser(dir)
-	if exists("loaded_nerd_tree")
+	if exists(":NERDTree")
 		" Use the NERDTree
 		exe "NERDTree ".a:dir
 		wincmd p
+	else
+		echoerr "NERDTree not found!"
+	endif
+endfunction
+" }}}
+
+" {{{ s:TeardownSourceBrowser()
+" Closes any open source browser
+function! s:TeardownSourceBrowser()
+	if exists(":NERDTreeClose")
+		exe "NERDTreeClose"
 	endif
 endfunction
 " }}}
